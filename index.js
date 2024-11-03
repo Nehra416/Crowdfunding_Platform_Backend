@@ -17,7 +17,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors(
     {
-        origin: 'http://localhost:5173/',
+        origin: 'http://localhost:5173',
         credentials: true,
     }
 ));
@@ -27,12 +27,14 @@ const userRoutes = require('./routes/userRoutes')
 const campaignRoutes = require('./routes/CampaignRoutes')
 const donationRoutes = require('./routes/DonationRoutes')
 const commentRoutes = require('./routes/CommentRoutes')
+const suggestionRoutes = require('./routes/SuggestionRoutes')
 
 
 app.use('/user', userRoutes);
 app.use('/campaign', campaignRoutes)
 app.use('/donation', donationRoutes)
 app.use('/comment', commentRoutes)
+app.use('/suggestion', suggestionRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

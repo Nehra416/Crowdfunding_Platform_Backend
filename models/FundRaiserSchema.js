@@ -36,13 +36,13 @@ const FundraiserSchema = mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    picture:{
+    picture: {
         type: String,
         required: true
     },
-    doucuments: {
-        type: [String],
-        // required: true
+    documents: {
+        type: String,
+        required: true
     },
     bankAccountNumber: {
         type: String,

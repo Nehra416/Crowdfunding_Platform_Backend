@@ -4,8 +4,12 @@ const fs = require('fs');
 
 const createCampaign = async (req, res) => {
     try {
-        const { title, description, targetAmount, medical_issue, bankAccountNumber, ifcCode, picture, documents } = req.body;
+        const { title, description, targetAmount, medical_issue, bankAccountNumber, ifcCode } = req.body;
+        const { picture, documents } = req.files;
         const userId = req.user;
+        console.log("picture", picture[0])
+        console.log("document", documents[0])
+        console.log("documentPath", documents[0]?.path)
 
         // all input field required
         if (!title || !description || !targetAmount || !medical_issue || !bankAccountNumber || !ifcCode) {
@@ -26,32 +30,28 @@ const createCampaign = async (req, res) => {
         }
 
         // create a cloudinary url to store the picture in db
-        const pictureUrl = await uploadToCloudinary(picture);
-        console.log(pictureUrl);
+        const pictureUrl = await uploadToCloudinary(picture?.[0].path);
+        console.log("pictureUrl", pictureUrl);
 
         // create a cloudinary urls to store the documents in db
-        const documentUrls = documents.map(async (document) => {
-            const result = await uploadToCloudinary(document);
-            return result.secure_url;
-        });
-        console.log(documentUrls);
+        const documentUrls = await uploadToCloudinary(documents?.[0].path);
+        console.log("documentUrls", documentUrls);
 
         // calling nodemailer here to send OTP ****
 
         // Create a new campaign
-        const newCampaign = await Fundraiser.create({ title, description, targetAmount, medical_issue, bankAccountNumber, ifcCode, user: userId });
+        const newCampaign = await Fundraiser.create({ title, description, targetAmount, medical_issue, bankAccountNumber, ifcCode, user: userId, picture: pictureUrl, documents: documentUrls });
 
         // delete the images after uploading successfully
-        fs.unlink(picture, (err) => {
+        fs.unlink(picture?.[0].path, (err) => {
             if (err) console.error("Error in deleting images", err);
             else console.log('Image deleted successfully');
         });
-        documents.map((document) => {
-            fs.unlink(document, (err) => {
-                if (err) console.error("Error in deleting images", err);
-                else console.log('Image deleted successfully');
-            });
+        fs.unlink(documents?.[0].path, (err) => {
+            if (err) console.error("Error in deleting images", err);
+            else console.log('Image deleted successfully');
         });
+
 
         // return with success message and with details
         return res.status(201).json({
